@@ -1,0 +1,73 @@
+/* دکمه‌های شناور AR */
+.ar-button-3d {
+    position: absolute;
+    transform-style: preserve-3d;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: none;
+    outline: none;
+    font-family: inherit;
+}
+
+.ar-button-3d:hover {
+    transform: translateZ(20px) scale(1.1);
+    filter: brightness(1.2);
+}
+
+.ar-button-3d:active {
+    transform: translateZ(10px) scale(0.95);
+}
+
+/* دکمه‌های تعاملی */
+.action-btn {
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, var(--secondary-color), #e6b450);
+    color: var(--primary-color);
+}
+
+.action-btn.secondary {
+    background: linear-gradient(135deg, var(--primary-color), #3a4b9f);
+    color: white;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn:active {
+    transform: translateY(-1px);
+}
+
+/* دکمه‌های کنترل */
+.control-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: var(--card-bg);
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+}

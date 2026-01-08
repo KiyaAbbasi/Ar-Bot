@@ -1,0 +1,46 @@
+{
+    "app": {
+        "name": "Kia Holding AR Business Card",
+        "version": "1.0.0",
+        "description": "Interactive AR Business Card with 3D UI"
+    },
+    "company": {
+        "name": "کیا هولدینگ",
+        "landline": "02191552070",
+        "mobile": "09054422524",
+        "website": "https://kiyaholding.com",
+        "email": "info@kiyaholding.com",
+        "address": "تهران، خیابان ولیعصر"
+    },
+    "ar": {
+        "markerType": "pattern",
+        "markerSize": "medium",
+        "smoothDetection": true,
+        "autoRotate": true
+    },
+    "audio": {
+        "backgroundMusic": "assets/audio/bg-music.mp3",
+        "voiceDescription": "assets/audio/voice-description.mp3",
+        "autoPlay": true,
+        "defaultVolume": 25
+    },
+    "ui": {
+        "theme": {
+            "primary": "#1a2b5f",
+            "secondary": "#c7a962",
+            "accent": "#4a6fff",
+            "text": "#333333",
+            "background": "#f8f9fa"
+        },
+        "animations": {
+            "enabled": true,
+            "duration": 300
+        }
+    },
+    "features": {
+        "3dButtons": true,
+        "voiceControl": true,
+        "particleEffects": true,
+        "interactiveElements": true
+    }
+}
