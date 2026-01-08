@@ -10,129 +10,172 @@
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
-    <!-- استایل‌ها -->
+    <!-- استایل اختصاصی -->
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/components/buttons.css">
-    <link rel="stylesheet" href="css/components/panels.css">
-    <link rel="stylesheet" href="css/components/animations.css">
+
+    <!-- فونت ایرانی -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 
     <!-- آیکون‌ها -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- فونت ایرانی -->
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
 </head>
 
 <body>
-    <!-- هدر AR -->
-    <div class="ar-header">
-        <div class="logo">
-            <i class="fas fa-cube"></i>
-            <span>کیا هولدینگ - واقعیت افزوده</span>
-        </div>
-        <div class="ar-status">
-            <span id="status-text">آماده اسکن</span>
-            <div class="status-indicator"></div>
-        </div>
-    </div>
-
-    <!-- صحنه AR -->
-    <div id="ar-scene-container">
-        <a-scene embedded arjs="sourceType: webcam; 
-                  detectionMode: mono_and_matrix; 
-                  matrixCodeType: 3x3; 
-                  debugUIEnabled: false;" vr-mode-ui="enabled: false" renderer="antialias: true; alpha: true">
-
-            <!-- مارکر کارت ویزیت -->
-            <a-marker id="card-marker" type="pattern" url="assets/images/card.patt" smooth="true" smoothCount="20"
-                emitevents="true">
-
-                <!-- محتوای AR -->
-                <div id="ar-content"></div>
-
-            </a-marker>
-
-            <!-- دوربین -->
-            <a-entity camera></a-entity>
-
-            <!-- نورپردازی -->
-            <a-entity light="type: ambient; color: #888; intensity: 0.8"></a-entity>
-            <a-entity light="type: directional; color: #FFF; intensity: 0.5" position="2 5 3"></a-entity>
-
-        </a-scene>
-    </div>
-
-    <!-- پنل کنترل -->
-    <div class="control-panel">
-        <div class="volume-control">
-            <button class="control-btn" id="volume-down">
-                <i class="fas fa-volume-down"></i>
-            </button>
-            <div class="volume-slider-container">
-                <input type="range" id="volume-slider" min="0" max="100" value="25">
-                <label for="volume-slider">صدا: <span id="volume-value">25%</span></label>
+    <!-- صفحه راهنما -->
+    <div id="intro-screen" class="screen active">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-cube"></i>
+                <h1>کارت ویزیت AR</h1>
+                <h2>کیا هولدینگ</h2>
             </div>
-            <button class="control-btn" id="volume-up">
-                <i class="fas fa-volume-up"></i>
-            </button>
-        </div>
 
-        <div class="action-buttons">
-            <button class="action-btn primary" id="btn-voice">
-                <i class="fas fa-microphone"></i>
-                <span>توضیحات صوتی</span>
-            </button>
-            <button class="action-btn secondary" id="btn-help">
-                <i class="fas fa-question-circle"></i>
-                <span>راهنما</span>
-            </button>
-        </div>
-    </div>
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> نحوه استفاده:</h3>
+                <ol>
+                    <li>کارت ویزیت فیزیکی را در مقابل دوربین قرار دهید</li>
+                    <li>صبر کنید تا محتوای AR شناسایی شود</li>
+                    <li>با دکمه‌های سه‌بعدی تعامل کنید</li>
+                    <li>از موسیقی و توضیحات صوتی لذت ببرید</li>
+                </ol>
+            </div>
 
-    <!-- راهنمای استفاده -->
-    <div class="instructions">
-        <div class="instruction-content">
-            <h3><i class="fas fa-info-circle"></i> نحوه استفاده:</h3>
-            <p>۱. کارت ویزیت فیزیکی را در مقابل دوربین قرار دهید</p>
-            <p>۲. منتظر بمانید تا محتوای AR بارگذاری شود</p>
-            <p>۳. با دکمه‌های شناور تعامل کنید</p>
-            <button class="close-instructions" id="close-help">
-                <i class="fas fa-times"></i> بستن
+            <button id="start-ar" class="btn-primary">
+                <i class="fas fa-camera"></i>
+                شروع تجربه AR
             </button>
+
+            <div class="contact-info">
+                <p><i class="fas fa-phone"></i> ۰۲۱۹۱۵۵۲۰۷۰</p>
+                <p><i class="fas fa-globe"></i> kiyaholding.com</p>
+            </div>
         </div>
     </div>
 
-    <!-- پیکربندی -->
-    <script>
-        const CONFIG = {
-            company: {
-                name: "کیا هولدینگ",
-                landline: "02191552070",
-                mobile: "09054422524",
-                website: "https://kiyaholding.com",
-                digitalCard: "https://kiyaholding.com/Qr"
-            },
-            audio: {
-                backgroundVolume: 0.25,
-                autoPlay: true
-            },
-            ui: {
-                theme: {
-                    primary: "#1a2b5f",
-                    secondary: "#c7a962",
-                    accent: "#4a6fff"
-                }
-            }
-        };
-    </script>
+    <!-- صفحه AR -->
+    <div id="ar-screen" class="screen">
+        <!-- دوربین با سایز مناسب -->
+        <div class="camera-container">
+            <a-scene embedded arjs="sourceType: webcam; 
+                      detectionMode: mono_and_matrix; 
+                      matrixCodeType: 3x3; 
+                      debugUIEnabled: false;" vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; 
+                         antialias: true;">
+
+                <!-- مارکر کارت -->
+                <a-marker id="card-marker" type="pattern" url="assets/images/card.patt" smooth="true" smoothCount="10"
+                    emitevents="true" cursor="rayOrigin: mouse">
+
+                    <!-- مدل مرکزی -->
+                    <a-entity id="center-logo" position="0 0.3 0">
+                        <a-box width="0.25" height="0.25" depth="0.25" color="#c7a962" metalness="0.8" roughness="0.2"
+                            animation="property: rotation; 
+                                     to: 0 360 0; 
+                                     loop: true; 
+                                     dur: 10000;
+                                     easing: linear">
+                        </a-box>
+                    </a-entity>
+
+                    <!-- دکمه‌های اطراف -->
+                    <a-entity id="buttons-container" rotation="0 0 0">
+                        <!-- دکمه تماس دفتر -->
+                        <a-entity class="ar-button" position="-0.6 0 0" data-action="call-landline">
+                            <a-cylinder radius="0.12" height="0.04" color="#4CAF50" metalness="0.7" roughness="0.3">
+                            </a-cylinder>
+                            <a-text value="📞" align="center" color="white" width="1" position="0 0 0.03">
+                            </a-text>
+                            <a-text value="دفتر" align="center" color="white" width="0.8" position="0 -0.2 0"
+                                scale="0.8 0.8 0.8">
+                            </a-text>
+                        </a-entity>
+
+                        <!-- دکمه تماس موبایل -->
+                        <a-entity class="ar-button" position="0.6 0 0" data-action="call-mobile">
+                            <a-cylinder radius="0.12" height="0.04" color="#2196F3" metalness="0.7" roughness="0.3">
+                            </a-cylinder>
+                            <a-text value="📱" align="center" color="white" width="1" position="0 0 0.03">
+                            </a-text>
+                            <a-text value="موبایل" align="center" color="white" width="0.8" position="0 -0.2 0"
+                                scale="0.8 0.8 0.8">
+                            </a-text>
+                        </a-entity>
+
+                        <!-- دکمه وب‌سایت -->
+                        <a-entity class="ar-button" position="0 -0.6 0" data-action="website">
+                            <a-cylinder radius="0.12" height="0.04" color="#9C27B0" metalness="0.7" roughness="0.3">
+                            </a-cylinder>
+                            <a-text value="🌐" align="center" color="white" width="1" position="0 0 0.03">
+                            </a-text>
+                            <a-text value="وب‌سایت" align="center" color="white" width="0.8" position="0 -0.2 0"
+                                scale="0.8 0.8 0.8">
+                            </a-text>
+                        </a-entity>
+
+                        <!-- دکمه کارت دیجیتال -->
+                        <a-entity class="ar-button" position="0 0.6 0" data-action="digital-card">
+                            <a-cylinder radius="0.12" height="0.04" color="#FF9800" metalness="0.7" roughness="0.3">
+                            </a-cylinder>
+                            <a-text value="👁️" align="center" color="white" width="1" position="0 0 0.03">
+                            </a-text>
+                            <a-text value="کارت دیجیتال" align="center" color="white" width="0.8" position="0 -0.25 0"
+                                scale="0.7 0.7 0.7">
+                            </a-text>
+                        </a-entity>
+                    </a-entity>
+
+                    <!-- دکمه توضیحات صوتی -->
+                    <a-entity id="voice-button" position="0 -0.1 0" data-action="voice">
+                        <a-torus radius="0.08" radius-tubular="0.02" color="#FF5722" animation="property: rotation; 
+                                     to: 360 0 0; 
+                                     loop: true; 
+                                     dur: 8000;
+                                     easing: linear">
+                        </a-torus>
+                        <a-text value="🎤" align="center" color="white" width="1.2" position="0 0 0.05">
+                        </a-text>
+                    </a-entity>
+
+                </a-marker>
+
+                <!-- دوربین -->
+                <a-entity camera></a-entity>
+
+            </a-scene>
+        </div>
+
+        <!-- کنترل‌های صدا -->
+        <div class="controls-panel">
+            <div class="volume-control">
+                <button id="volume-down" class="control-btn">
+                    <i class="fas fa-volume-down"></i>
+                </button>
+                <div class="volume-slider">
+                    <input type="range" id="volume-slider" min="0" max="100" value="25">
+                    <span id="volume-text">حجم: 25%</span>
+                </div>
+                <button id="volume-up" class="control-btn">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+
+            <button id="back-btn" class="btn-secondary">
+                <i class="fas fa-arrow-right"></i>
+                بازگشت
+            </button>
+        </div>
+
+        <!-- وضعیت AR -->
+        <div class="status-indicator">
+            <span id="status-text">در جستجوی کارت ویزیت...</span>
+            <div class="status-dot"></div>
+        </div>
+    </div>
 
     <!-- اسکریپت‌ها -->
-    <script src="js/ar-system.js"></script>
     <script src="js/audio-manager.js"></script>
-    <script src="js/ui-manager.js"></script>
+    <script src="js/ar-manager.js"></script>
     <script src="js/main.js"></script>
-
 </body>
 
 </html>
