@@ -1,189 +1,261 @@
-class ARSystem {
+class ARManager {
     constructor() {
-        this.markerFound = false;
-        this.currentMarker = null;
         this.scene = null;
-
-        this.initAR();
+        this.markerFound = false;
+        this.marker = null;
+        this.isARReady = false;
+        
+        this.init();
     }
-
-    initAR() {
+    
+    init() {
+        // منتظر بارگذاری A-Frame بمان
+        window.addEventListener('load', () => {
+            this.setupARScene();
+        });
+    }
+    
+    setupARScene() {
         this.scene = document.querySelector('a-scene');
-
+        
         if (!this.scene) {
             console.error('Scene not found!');
             return;
         }
-
+        
+        // وقتی AR آماده شد
+        this.scene.addEventListener('loaded', () => {
+            this.isARReady = true;
+            console.log('✅ AR scene loaded');
+            this.setupEventListeners();
+            this.checkWebGLSupport();
+        });
+        
+        // خطای AR
+        this.scene.addEventListener('arjs-video-loaded', () => {
+            console.log('📹 AR video stream started');
+        });
+    }
+    
+    setupEventListeners() {
         // رویدادهای مارکر
         this.scene.addEventListener('markerFound', (event) => {
             this.onMarkerFound(event);
         });
-
+        
         this.scene.addEventListener('markerLost', (event) => {
             this.onMarkerLost(event);
         });
-
-        // بررسی پشتیبانی مرورگر
-        this.checkBrowserSupport();
+        
+        // کلیک روی دکمه‌های AR
+        const arButtons = document.querySelectorAll('.ar-button, #voice-button');
+        arButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                this.onButtonClick(event);
+            });
+        });
     }
-
+    
     onMarkerFound(event) {
         this.markerFound = true;
-        this.currentMarker = event.target;
-
-        console.log('Marker found:', this.currentMarker.id);
-
-        // به‌روزرسانی وضعیت UI
-        if (window.uiManager) {
-            window.uiManager.updateStatus('شناسایی شد');
-            window.uiManager.showNotification('کارت ویزیت شناسایی شد!', 'success');
-        }
-
-        // پخش خودکار موسیقی
-        if (window.audioManager && window.CONFIG.audio.autoPlay) {
+        this.marker = event.target;
+        
+        console.log('🎯 Marker found!');
+        
+        // به‌روزرسانی وضعیت
+        this.updateStatus('کارت شناسایی شد', '#4CAF50');
+        
+        // پخش موسیقی
+        if (window.audioManager) {
             setTimeout(() => {
                 window.audioManager.playBackgroundMusic();
             }, 500);
         }
-
-        // اضافه کردن افکت‌های ویژه
-        this.addSpecialEffects();
-    }
-
-    onMarkerLost(event) {
-        this.markerFound = false;
-        this.currentMarker = null;
-
-        console.log('Marker lost');
-
-        // به‌روزرسانی وضعیت UI
-        if (window.uiManager) {
-            window.uiManager.updateStatus('آماده اسکن');
+        
+        // اضافه کردن افکت‌ها
+        this.addMarkerEffects();
+        
+        // به‌روزرسانی UI
+        if (window.updateUIOnMarkerFound) {
+            window.updateUIOnMarkerFound();
         }
     }
-
-    addSpecialEffects() {
-        if (!this.currentMarker) return;
-
-        // ایجاد افکت ذرات
+    
+    onMarkerLost(event) {
+        this.markerFound = false;
+        this.marker = null;
+        
+        console.log('❌ Marker lost');
+        
+        // به‌روزرسانی وضعیت
+        this.updateStatus('در جستجوی کارت...', '#FF5722');
+        
+        // متوقف کردن موسیقی
+        if (window.audioManager) {
+            window.audioManager.stopBackgroundMusic();
+        }
+    }
+    
+    onButtonClick(event) {
+        const button = event.currentTarget;
+        const action = button.getAttribute('data-action');
+        
+        console.log(`Button clicked: ${action}`);
+        
+        // افکت کلیک
+        this.addClickEffect(button);
+        
+        // اجرای اکشن
+        this.executeAction(action);
+    }
+    
+    executeAction(action) {
+        switch(action) {
+            case 'call-landline':
+                this.makeCall('02191552070');
+                break;
+                
+            case 'call-mobile':
+                this.makeCall('09054422524');
+                break;
+                
+            case 'website':
+                window.open('https://kiyaholding.com', '_blank');
+                break;
+                
+            case 'digital-card':
+                window.open('https://kiyaholding.com/digital-card', '_blank');
+                break;
+                
+            case 'voice':
+                if (window.audioManager) {
+                    window.audioManager.playVoiceIntro();
+                }
+                break;
+                
+            default:
+                console.warn(`Unknown action: ${action}`);
+        }
+    }
+    
+    makeCall(phoneNumber) {
+        if (confirm(`آیا می‌خواهید با شماره ${phoneNumber} تماس بگیرید؟`)) {
+            window.open(`tel:${phoneNumber}`);
+        }
+    }
+    
+    updateStatus(text, color = '#4CAF50') {
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.querySelector('.status-dot');
+        
+        if (statusText) {
+            statusText.textContent = text;
+            statusText.style.color = color;
+        }
+        
+        if (statusDot) {
+            statusDot.style.backgroundColor = color;
+        }
+    }
+    
+    addMarkerEffects() {
+        if (!this.marker) return;
+        
+        // افکت ذرات
         const particles = document.createElement('a-entity');
         particles.setAttribute('particle-system', {
             preset: 'snow',
             color: '#c7a962',
-            particleCount: 100,
-            maxAge: 2
+            particleCount: 50,
+            velocityValue: '0 0.5 0',
+            accelerationValue: '0 0.2 0'
         });
         particles.setAttribute('position', '0 0.5 0');
-
-        // ایجاد نور نقطه‌ای
-        const pointLight = document.createElement('a-entity');
-        pointLight.setAttribute('light', {
+        
+        // نور
+        const light = document.createElement('a-entity');
+        light.setAttribute('light', {
             type: 'point',
             color: '#c7a962',
-            intensity: 0.8,
-            distance: 3
+            intensity: 0.5,
+            distance: 2
         });
-        pointLight.setAttribute('position', '0 0.5 0');
-        pointLight.setAttribute('animation', {
-            property: 'position',
-            to: '0 1 0',
-            dir: 'alternate',
-            loop: true,
-            dur: 2000
-        });
-
-        this.currentMarker.appendChild(particles);
-        this.currentMarker.appendChild(pointLight);
-
-        // حذف افکت‌ها پس از 5 ثانیه
+        light.setAttribute('position', '0 0.5 0');
+        
+        this.marker.appendChild(particles);
+        this.marker.appendChild(light);
+        
+        // حذف افکت‌ها بعد از ۳ ثانیه
         setTimeout(() => {
-            if (particles.parentNode) {
-                particles.parentNode.removeChild(particles);
-            }
-            if (pointLight.parentNode) {
-                pointLight.parentNode.removeChild(pointLight);
-            }
-        }, 5000);
+            if (particles.parentNode) particles.parentNode.removeChild(particles);
+            if (light.parentNode) light.parentNode.removeChild(light);
+        }, 3000);
     }
-
-    checkBrowserSupport() {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        const isAndroid = /Android/.test(navigator.userAgent);
-
-        if (!isIOS && !isAndroid) {
-            console.warn('توصیه می‌شود از گوشی موبایل برای تجربه بهتر استفاده کنید');
-        }
-
-        // بررسی WebGL
-        if (!this.isWebGLAvailable()) {
+    
+    addClickEffect(element) {
+        // افکت پالس
+        const pulse = document.createElement('a-entity');
+        pulse.setAttribute('geometry', {
+            primitive: 'ring',
+            radiusInner: 0.15,
+            radiusOuter: 0.2
+        });
+        pulse.setAttribute('material', {
+            color: '#FFFFFF',
+            opacity: 0.7,
+            transparent: true
+        });
+        pulse.setAttribute('position', element.getAttribute('position'));
+        
+        // انیمیشن
+        pulse.setAttribute('animation', {
+            property: 'scale',
+            to: '2 2 2',
+            dur: 500,
+            easing: 'easeOutQuad'
+        });
+        
+        pulse.setAttribute('animation__opacity', {
+            property: 'material.opacity',
+            to: 0,
+            dur: 500,
+            easing: 'easeOutQuad'
+        });
+        
+        this.marker.appendChild(pulse);
+        
+        // حذف بعد از انیمیشن
+        setTimeout(() => {
+            if (pulse.parentNode) pulse.parentNode.removeChild(pulse);
+        }, 600);
+    }
+    
+    checkWebGLSupport() {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        
+        if (!gl) {
             this.showWebGLError();
         }
     }
-
-    isWebGLAvailable() {
-        try {
-            const canvas = document.createElement('canvas');
-            return !!(window.WebGLRenderingContext &&
-                (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-        } catch (e) {
-            return false;
-        }
-    }
-
+    
     showWebGLError() {
         const errorDiv = document.createElement('div');
-        errorDiv.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 4000;
-            text-align: center;
-            padding: 20px;
-        `;
-
+        errorDiv.className = 'webgl-error show';
         errorDiv.innerHTML = `
-            <div style="max-width: 500px; background: #1a2b5f; padding: 30px; border-radius: 20px; border: 2px solid #c7a962;">
-                <h2 style="color: #c7a962; margin-bottom: 20px;">⚠️ مرورگر شما از WebGL پشتیبانی نمی‌کند</h2>
-                <p style="margin-bottom: 15px;">برای مشاهده محتوای AR نیاز به WebGL دارید.</p>
-                <p style="margin-bottom: 25px;">لطفاً از آخرین نسخه یکی از مرورگرهای زیر استفاده کنید:</p>
-                <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 25px;">
-                    <div style="background: #4285F4; padding: 10px 20px; border-radius: 10px;">Chrome</div>
-                    <div style="background: #FF9500; padding: 10px 20px; border-radius: 10px;">Safari</div>
-                    <div style="background: #007AFF; padding: 10px 20px; border-radius: 10px;">Firefox</div>
-                </div>
-                <button onclick="location.reload()" style="
-                    background: linear-gradient(135deg, #c7a962, #e6b450);
-                    color: #1a2b5f;
-                    border: none;
-                    padding: 12px 30px;
-                    border-radius: 15px;
-                    font-size: 1.1rem;
-                    font-weight: bold;
-                    cursor: pointer;
-                ">بارگذاری مجدد</button>
+            <div>
+                <h2><i class="fas fa-exclamation-triangle"></i> مرورگر شما از WebGL پشتیبانی نمی‌کند</h2>
+                <p>برای مشاهده محتوای AR نیاز به WebGL دارید.</p>
+                <p>لطفاً از آخرین نسخه Chrome یا Safari استفاده کنید.</p>
+                <button onclick="location.reload()" class="btn-primary">
+                    <i class="fas fa-redo"></i> بارگذاری مجدد
+                </button>
             </div>
         `;
-
+        
         document.body.appendChild(errorDiv);
     }
-
-    // برای استفاده در فایل اصلی
-    static getInstance() {
-        if (!ARSystem.instance) {
-            ARSystem.instance = new ARSystem();
-        }
-        return ARSystem.instance;
-    }
 }
 
-if (typeof module !== 'undefined') {
-    module.exports = ARSystem;
-}
+// ایجاد instance گلوبال
+window.arManager = new ARManager();
